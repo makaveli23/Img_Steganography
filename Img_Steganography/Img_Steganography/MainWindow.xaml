@@ -1,0 +1,14 @@
+﻿<Window x:Class="Img_Steganography.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Img_Steganography"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <Button x:Name="btnLoadImage" Content="Load image" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="87" Height="22"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="140" Margin="10,49,0,0" VerticalAlignment="Top" Width="171"/>
+
+    </Grid>
+</Window>
