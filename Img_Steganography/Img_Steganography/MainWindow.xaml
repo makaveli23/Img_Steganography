@@ -3,12 +3,36 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Img_Steganography"
+        xmlns:local="clr-namespace:Img_Steganography.ViewModel"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <Button x:Name="btnLoadImage" Content="Load image" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="87" Height="22"/>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="140" Margin="10,49,0,0" VerticalAlignment="Top" Width="171"/>
+        Title="Hiding image MM AM" Height="257.174" Width="535.035">
+    <Window.DataContext>
+        <local:MainWindowViewModel></local:MainWindowViewModel>
+    </Window.DataContext>
+    <Grid Margin="0,0,2,0" Height="224" VerticalAlignment="Top">
+        <Button x:Name="btnLoadPrimaryImage" Command="{Binding OpenPrimaryImg}" Cursor="Hand">
+            <Button.Template>
+                <ControlTemplate>
+                    <Image x:Name="image" HorizontalAlignment="Left" Height="170" Margin="10,26,0,0" VerticalAlignment="Top" Width="171" Source="{Binding PrimaryImgPath}"/>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <Label x:Name="label" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="142" Height="26" Content="Primary image:"/>
+        <Label x:Name="label_Copy" HorizontalAlignment="Left" Margin="186,0,0,0" VerticalAlignment="Top" Width="142" Height="26" Content="Image to write: "/>
+        <Button x:Name="btnLoadSecondaryImg" Command="{Binding OpenSecondaryImg}" Cursor="Hand" Height="224" VerticalAlignment="Top">
+            <Button.Template>
+                <ControlTemplate>
+                    <Image x:Name="image_Copy" HorizontalAlignment="Left" Height="134" Margin="186,26,0,0" VerticalAlignment="Top" Width="126" Source="{Binding SecondaryImgPath}"/>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        <Label x:Name="label1" Content="Result image:" Width="100" Margin="345,0,80,198"/>
+        <Rectangle Fill="#FFF4F4F5" Stroke="Black" Margin="326,0,190,0"/>
+
+        <Image x:Name="image_Copy1" HorizontalAlignment="Left" Height="155" Margin="340,30,0,0" VerticalAlignment="Top" Width="175" Source="{Binding ResultImageSource}"/>
+        <Button x:Name="btnWriteImage" Content="Write" HorizontalAlignment="Left" Margin="186,170,0,0" VerticalAlignment="Top" Width="56" Command="{Binding Write}"/>
+        <Button x:Name="btnReadImage" Content="Read" HorizontalAlignment="Left" Margin="255,170,0,0" VerticalAlignment="Top" Width="51"/>
+        <Button x:Name="btnSaveImage" Content="Save image" HorizontalAlignment="Left" Margin="394,190,0,0" VerticalAlignment="Top" Width="75"/>
 
     </Grid>
 </Window>

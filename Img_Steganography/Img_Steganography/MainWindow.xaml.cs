@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Img_Steganography.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,7 @@ namespace Img_Steganography
         public MainWindow()
         {
             InitializeComponent();
+            MainWindowViewModel vm = new MainWindowViewModel();
         }
     }
 }
