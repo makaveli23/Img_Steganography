@@ -31,8 +31,8 @@
 
         <Image x:Name="image_Copy1" HorizontalAlignment="Left" Height="155" Margin="340,30,0,0" VerticalAlignment="Top" Width="175" Source="{Binding ResultImageSource}"/>
         <Button x:Name="btnWriteImage" Content="Write" HorizontalAlignment="Left" Margin="186,170,0,0" VerticalAlignment="Top" Width="56" Command="{Binding Write}"/>
-        <Button x:Name="btnReadImage" Content="Read" HorizontalAlignment="Left" Margin="255,170,0,0" VerticalAlignment="Top" Width="51"/>
-        <Button x:Name="btnSaveImage" Content="Save image" HorizontalAlignment="Left" Margin="394,190,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="btnReadImage" Content="Read" HorizontalAlignment="Left" Margin="255,170,0,0" VerticalAlignment="Top" Width="51" Command="{Binding ReadImg}"/>
+        <Button x:Name="btnSaveImage" Content="Save image" HorizontalAlignment="Left" Margin="394,190,0,0" VerticalAlignment="Top" Width="75" Command="{Binding SaveImg}"/>
 
     </Grid>
 </Window>

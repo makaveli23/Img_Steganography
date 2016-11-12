@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,13 +15,17 @@ namespace Img_Steganography.Functionality
 {
     public static class ImageWriter
     {
-        public static Bitmap WriteImage(Bitmap primaryImg, Bitmap secondaryImg)
+        public static Bitmap WriteImage2LSB(Bitmap primaryImg, Bitmap secondaryImg)
         {
-            Bitmap EightbppImage, imageToReturn = primaryImg;          
-            EightbppImage = ImageTo8bpp(secondaryImg);
-            byte[] tablica = ImageToByte(EightbppImage);
+            Bitmap imageToReturn = new Bitmap(primaryImg);
+            //Bitmap EightbppImage;      
+            //EightbppImage = ImageTo8bpp(secondaryImg);
+            byte[] tablica = ImageToByte(secondaryImg);
+            
 
-            var bits = new BitArray(tablica);
+
+
+            
 
             if (tablica.Length > primaryImg.Size.Height * primaryImg.Size.Width)
                 return null;
@@ -29,46 +35,142 @@ namespace Img_Steganography.Functionality
 
             for (int i = 0; i < imageToReturn.Width; i++)
             {
-                for (int j = 0; j < imageToReturn.Height; j++)
+                for (int j = 0; j < imageToReturn.Height; j+=2)
                 {
-                    if (counter >= bits.Count)
-                        break;
+                    if (counter >= tablica.Length)
+                    {
+                        break;                       
+                    }
                     var pixel = imageToReturn.GetPixel(i, j);
-                    var pixelA = ByteArrayExtension.Set2LastBits(pixel.A, bits[counter], bits[counter + 1]);
-                    var pixelR = ByteArrayExtension.Set2LastBits(pixel.R, bits[counter + 2], bits[counter + 3]);
-                    var pixelG = ByteArrayExtension.Set2LastBits(pixel.G, bits[counter + 4], bits[counter + 5]);
-                    var pixelB = ByteArrayExtension.Set2LastBits(pixel.G, bits[counter + 6], bits[counter + 7]);
-                    Color color = Color.FromArgb(pixelA, pixelR, pixelG, pixelB);
+                    var pixel1 = imageToReturn.GetPixel(i, j + 1);
+                    var pixelR = ByteArrayExtension.Set2LastBits(pixel.R, ByteArrayExtension.GetBit(tablica[counter], 7), ByteArrayExtension.GetBit(tablica[counter], 6));
+                    var pixelG = ByteArrayExtension.SetLastBit(pixel.G, ByteArrayExtension.GetBit(tablica[counter], 5));
+                    var pixelB = ByteArrayExtension.SetLastBit(pixel.B, ByteArrayExtension.GetBit(tablica[counter], 4));
+                    var pixelR1 = ByteArrayExtension.Set2LastBits(pixel.R, ByteArrayExtension.GetBit(tablica[counter], 3), ByteArrayExtension.GetBit(tablica[counter], 2));
+                    var pixelG1 = ByteArrayExtension.SetLastBit(pixel.G, ByteArrayExtension.GetBit(tablica[counter], 1));
+                    var pixelB1 = ByteArrayExtension.SetLastBit(pixel.B, ByteArrayExtension.GetBit(tablica[counter], 0));
+                    Color color = Color.FromArgb(pixel.A, pixelR, pixelG, pixelB);
+                    Color color1 = Color.FromArgb(pixel1.A, pixelR1, pixelG1, pixelB1);
                     imageToReturn.SetPixel(i, j, color);
-                    counter += 8;
+                    imageToReturn.SetPixel(i, j + 1, color1);
+                    counter++;
                     
                 }
-                if (counter >= bits.Count)
+                if (counter >= tablica.Length)
                     break;
             }
 
 
+            
 
             return imageToReturn;
 
         }
 
 
-        public static bool ReadImage(Bitmap image)
+        //public static Bitmap ReadImage2LSB(Bitmap image)
+        //{
+        //    Bitmap hiddenImage = new Bitmap(280, 210, PixelFormat.Format32bppArgb);
+            
+        //    List<byte> hidden = new List<byte>();
+        //    byte[] byteArray;
+        //    byte bajt=0;
+
+        //    for (int i = 0; i < image.Width; i++)
+        //    {
+        //        for (int j = 0; j < image.Height; j++)
+        //        {
+        //            var pixel = image.GetPixel(i, j);
+        //            BitArray bits = new BitArray(
+        //                new bool[]
+        //                          {
+        //                              ByteArrayExtension.GetBit(pixel.A, 1),
+        //                              ByteArrayExtension.GetBit(pixel.A, 0),
+        //                              ByteArrayExtension.GetBit(pixel.R, 1),
+        //                              ByteArrayExtension.GetBit(pixel.R, 0),
+        //                              ByteArrayExtension.GetBit(pixel.G, 1),
+        //                              ByteArrayExtension.GetBit(pixel.G, 0),
+        //                              ByteArrayExtension.GetBit(pixel.B, 1),
+        //                              ByteArrayExtension.GetBit(pixel.B, 0)
+        //                });
+
+        //            bajt = ConvertToByte(bits);                   
+        //            hidden.Add(bajt);
+                   
+                    
+        //        }
+                
+
+        //    }
+
+        //    byteArray = hidden.ToArray();
+
+        //    Bitmap bitmap = new Bitmap(736, 736, PixelFormat.Format32bppArgb);
+        //    var bitmapData = bitmap.LockBits(new Rectangle(System.Drawing.Point.Empty, bitmap.Size), ImageLockMode.ReadWrite, bitmap.PixelFormat);
+        //    Marshal.Copy(byteArray, 0, bitmapData.Scan0, byteArray.Length);
+        //    bitmap.UnlockBits(bitmapData);
+        //    bitmap.Save(@"C:\Users\micha\Pictures\Saved Pictures\test15.bmp", ImageFormat.Bmp);
+
+        //    return bitmap;
+
+        //}
+        public static Bitmap ReadImage2LSB(Bitmap image)
         {
-            Bitmap hiddenImage;
+            Bitmap hiddenImage = new Bitmap(280, 210, PixelFormat.Format32bppArgb);
+
+            List<byte> hidden = new List<byte>();
+            byte[] byteArray;
+            byte bajt = 0;
 
             for (int i = 0; i < image.Width; i++)
             {
-                for (int j = 0; j < image.Height; j++)
+                for (int j = 0; j < image.Height; j+=2)
                 {
+                    var pixel = image.GetPixel(i, j);
+                    var pixel1 = image.GetPixel(i, j + 1);
+                    BitArray bits = new BitArray(
+                        new bool[]
+                                  {
+                                      ByteArrayExtension.GetBit(pixel.R, 1),
+                                      ByteArrayExtension.GetBit(pixel.R, 0),
+                                      ByteArrayExtension.GetBit(pixel.G, 0),
+                                      ByteArrayExtension.GetBit(pixel.B, 0),
+                                      ByteArrayExtension.GetBit(pixel1.R, 1),
+                                      ByteArrayExtension.GetBit(pixel1.R, 0),
+                                      ByteArrayExtension.GetBit(pixel1.G, 0),
+                                      ByteArrayExtension.GetBit(pixel1.B, 0)
+
+                        });
+
+                    bajt = ConvertToByte(bits);
+                    hidden.Add(bajt);
+
 
                 }
 
+
             }
 
-            return true;
+            byteArray = hidden.ToArray();
 
+            using (MemoryStream ms = new MemoryStream(byteArray))
+            {
+                Bitmap img = (Bitmap)Image.FromStream(ms);
+                return img;
+            }
+
+        }
+
+        static byte ConvertToByte(BitArray bits)
+        {
+            if (bits.Count != 8)
+            {
+                throw new ArgumentException("bits");
+            }
+            var bitArray = new BitArray(bits.Cast<bool>().Reverse().ToArray());
+            byte[] bytes = new byte[1];
+            bitArray.CopyTo(bytes, 0);
+            return bytes[0];
         }
 
         public static byte[] ImageToByte(Bitmap bmp)

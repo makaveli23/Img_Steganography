@@ -17,7 +17,7 @@ namespace Img_Steganography.Functionality
         {
             byte temp;
             temp = value1 ? (byte)(aByte | (1 << 1)) : (byte)(aByte & ~(1 << 1));
-            temp = value2 ? (byte)(aByte | (1 << 0)) : (byte)(aByte & ~(1 << 0));
+            temp = value2 ? (byte)(temp | (1 << 0)) : (byte)(temp & ~(1 << 0));
             return temp;
         }
 

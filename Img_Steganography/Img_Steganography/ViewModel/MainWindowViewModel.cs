@@ -12,6 +12,7 @@ using Img_Steganography.Functionality;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
+using System.Drawing.Imaging;
 
 namespace Img_Steganography.ViewModel
 {
@@ -30,12 +31,23 @@ namespace Img_Steganography.ViewModel
 
         public ICommand SaveImg { get; set; }
 
+        public ICommand ReadImg { get; set; }
+
         public MainWindowViewModel()
         {
             OpenPrimaryImg = new RelayCommand(openImg, (obj) => true);
             OpenSecondaryImg = new RelayCommand(openImg2, (obj) => true);
             Write = new RelayCommand(write, (obj) => PrimaryImgPath != "/Resource/image.png" && SecondaryImgPath != "/Resource/image.png");
+            SaveImg = new RelayCommand(saveImg, (obj) => resultImage != null);
+            ReadImg = new RelayCommand(readImg, (obj) => PrimaryImgPath != "/Resource/image.png" && SecondaryImgPath == "/Resource/image.png");
           
+
+        }
+
+        private void readImg(object obj)
+        {
+            resultImage = ImageWriter.ReadImage2LSB(primaryImg);
+            ResultImageSource = loadBitmap(resultImage);
 
         }
 
@@ -68,6 +80,19 @@ namespace Img_Steganography.ViewModel
 
         private void saveImg(object obj)
         {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "Images|*.png;*.bmp;*.tiff";
+
+            Bitmap newImage = null;
+            using (var image = new Bitmap(resultImage))
+            {
+                newImage = new Bitmap(image);
+            }
+
+            if (dialog.ShowDialog() == true)
+            {
+                newImage.Save(dialog.FileName, ImageFormat.Bmp);
+            }
 
         }
 
@@ -77,10 +102,13 @@ namespace Img_Steganography.ViewModel
 
         private void write(object obj)
         {
-            Bitmap img = ImageWriter.WriteImage(primaryImg, secondaryImg);
-            string message = (img != null) ? "Zapis powiodl sie!" : "Blad! Zdjecie, ktore probujesz zapisac jest zbyt duze.";
+            resultImage = ImageWriter.WriteImage2LSB(primaryImg, secondaryImg);
+            var p = resultImage.GetPixel(0, 0);
+            SecondaryImgPath = "/Resource/image.png";
+            string message = (resultImage != null) ? "Zapis powiodl sie!" : "Blad! Zdjecie, ktore probujesz zapisac jest zbyt duze.";
             MessageBox.Show(message);
-            ResultImageSource = loadBitmap(img);
+
+            ResultImageSource = loadBitmap(resultImage);
         }
 
        
