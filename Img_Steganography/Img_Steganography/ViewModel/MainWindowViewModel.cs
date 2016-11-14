@@ -33,6 +33,8 @@ namespace Img_Steganography.ViewModel
 
         public ICommand ReadImg { get; set; }
 
+        public IEncryptor _encrypt;
+
         public MainWindowViewModel()
         {
             OpenPrimaryImg = new RelayCommand(openImg, (obj) => true);
@@ -40,13 +42,13 @@ namespace Img_Steganography.ViewModel
             Write = new RelayCommand(write, (obj) => PrimaryImgPath != "/Resource/image.png" && SecondaryImgPath != "/Resource/image.png");
             SaveImg = new RelayCommand(saveImg, (obj) => resultImage != null);
             ReadImg = new RelayCommand(readImg, (obj) => PrimaryImgPath != "/Resource/image.png" && SecondaryImgPath == "/Resource/image.png");
-          
 
+            _encrypt = new Encryption2LSB();
         }
 
         private void readImg(object obj)
         {
-            resultImage = ImageWriter.ReadImage2LSB(primaryImg);
+            resultImage = _encrypt.ReadImage(primaryImg);
             ResultImageSource = loadBitmap(resultImage);
 
         }
@@ -102,7 +104,7 @@ namespace Img_Steganography.ViewModel
 
         private void write(object obj)
         {
-            resultImage = ImageWriter.WriteImage2LSB(primaryImg, secondaryImg);
+            resultImage = _encrypt.WriteImage(primaryImg, secondaryImg);
             SecondaryImgPath = "/Resource/image.png";
             if(resultImage != null)
             {

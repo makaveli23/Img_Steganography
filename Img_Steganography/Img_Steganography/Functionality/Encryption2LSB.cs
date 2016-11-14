@@ -13,14 +13,14 @@ using System.Windows;
 
 namespace Img_Steganography.Functionality
 {
-    public static class ImageWriter
+    public class Encryption2LSB : IEncryptor
     {
-        public static Bitmap WriteImage2LSB(Bitmap primaryImg, Bitmap secondaryImg)
+        public Bitmap WriteImage(Bitmap primaryImg, Bitmap secondaryImg)
         {
             Bitmap imageToReturn = new Bitmap(primaryImg);
             //Bitmap EightbppImage;      
             //EightbppImage = ImageTo8bpp(secondaryImg);
-            byte [] tablica = ImageToByte(secondaryImg);
+            byte [] tablica = EncryptionHelper.ImageToByte(secondaryImg);
             
             if (tablica.Length > primaryImg.Size.Height * primaryImg.Size.Width/2)
                 return null;
@@ -36,22 +36,13 @@ namespace Img_Steganography.Functionality
                     {
                         break;                       
                     }
-
                     var bits = new BitArray(new byte[] { tablica[counter] });
 
                     var pixel = imageToReturn.GetPixel(i, j);
                     var pixel1 = imageToReturn.GetPixel(i, j + 1);
 
-                    var pixelR = ByteArrayExtension.Set2LastBits(pixel.R, bits[7], bits[6]);
-                    var pixelG = ByteArrayExtension.SetLastBit(pixel.G, bits[5]);
-                    var pixelB = ByteArrayExtension.SetLastBit(pixel.B, bits[4]);
-
-                    var pixelR1 = ByteArrayExtension.Set2LastBits(pixel.R, bits[3], bits[2]);
-                    var pixelG1 = ByteArrayExtension.SetLastBit(pixel.G, bits[1]);
-                    var pixelB1 = ByteArrayExtension.SetLastBit(pixel.B, bits[0]);
-
-                    Color color = Color.FromArgb(pixel.A, pixelR, pixelG, pixelB);
-                    Color color1 = Color.FromArgb(pixel1.A, pixelR1, pixelG1, pixelB1);
+                    Color color = EncryptionHelper.GetColor(pixel, new bool[] { bits[7], bits[6], bits[5], bits[4] });
+                    Color color1 = EncryptionHelper.GetColor(pixel1, new bool[] { bits[3], bits[2], bits[1], bits[0] });
 
                     imageToReturn.SetPixel(i, j, color);
                     imageToReturn.SetPixel(i, j + 1, color1);
@@ -61,17 +52,9 @@ namespace Img_Steganography.Functionality
                 if (counter >= tablica.Length)
                     break;
             }
-
-
-            
-
             return imageToReturn;
 
         }
-
-        
-
-
 
 
         //public static Bitmap ReadImage2LSB(Bitmap image)
@@ -120,10 +103,8 @@ namespace Img_Steganography.Functionality
         //    return bitmap;
 
         //}
-        public static Bitmap ReadImage2LSB(Bitmap image)
+        public Bitmap ReadImage(Bitmap image)
         {
-            Bitmap hiddenImage = new Bitmap(280, 210, PixelFormat.Format32bppArgb);
-
             List<byte> hidden = new List<byte>();
             byte[] byteArray;
             byte bajt = 0;
@@ -148,13 +129,9 @@ namespace Img_Steganography.Functionality
 
                         });
 
-                    bajt = ConvertToByte(bits);
+                    bajt = EncryptionHelper.ConvertToByte(bits);
                     hidden.Add(bajt);
-
-
                 }
-
-
             }
 
             byteArray = hidden.ToArray();
@@ -167,48 +144,6 @@ namespace Img_Steganography.Functionality
 
         }
 
-        static byte ConvertToByte(BitArray bits)
-        {
-            if (bits.Count != 8)
-            {
-                throw new ArgumentException("bits");
-            }
-            var bitArray = new BitArray(bits.Cast<bool>().Reverse().ToArray());
-            byte[] bytes = new byte[1];
-            bitArray.CopyTo(bytes, 0);
-            return bytes[0];
-        }
-
-        public static byte[] ImageToByte(Bitmap bmp)
-        {
-            using (var stream = new MemoryStream())
-            {
-                bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                return stream.ToArray();
-            }
-        }
-
-        private static Bitmap ImageTo8bpp(Bitmap image)
-        {
-
-            var imageCodecInfo = GetEncoderInfo("image/tiff");
-            var encoder = System.Drawing.Imaging.Encoder.ColorDepth;
-            var encoderParameters = new EncoderParameters(1);
-            var encoderParameter = new EncoderParameter(encoder, 8L);
-            encoderParameters.Param[0] = encoderParameter;
-            var memoryStream = new MemoryStream();
-
-            image.Save(memoryStream, imageCodecInfo, encoderParameters);
-            image.Save(@"C:\Users\micha\Pictures\Saved Pictures\test6bit.tiff", imageCodecInfo, encoderParameters);
-
-
-            return (Bitmap)Image.FromStream(memoryStream);
-        }
-
-        private static ImageCodecInfo GetEncoderInfo(string mimeType)
-        {
-            var imageEncoders = ImageCodecInfo.GetImageEncoders();
-            return imageEncoders.FirstOrDefault(t => t.MimeType == mimeType);
-        }
+        
     }
 }
