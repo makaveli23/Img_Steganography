@@ -103,12 +103,18 @@ namespace Img_Steganography.ViewModel
         private void write(object obj)
         {
             resultImage = ImageWriter.WriteImage2LSB(primaryImg, secondaryImg);
-            var p = resultImage.GetPixel(0, 0);
             SecondaryImgPath = "/Resource/image.png";
-            string message = (resultImage != null) ? "Zapis powiodl sie!" : "Blad! Zdjecie, ktore probujesz zapisac jest zbyt duze.";
-            MessageBox.Show(message);
+            if(resultImage != null)
+            {
+                MessageBox.Show("Zapis powiodl sie.");
+                ResultImageSource = loadBitmap(resultImage);
+            }
+            else
+            {
+                MessageBox.Show("Blad. ZDjecie ktore probujesz zapisac jest zbyt duze.");
+            }
 
-            ResultImageSource = loadBitmap(resultImage);
+            
         }
 
        

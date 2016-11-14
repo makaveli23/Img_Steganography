@@ -20,14 +20,9 @@ namespace Img_Steganography.Functionality
             Bitmap imageToReturn = new Bitmap(primaryImg);
             //Bitmap EightbppImage;      
             //EightbppImage = ImageTo8bpp(secondaryImg);
-            byte[] tablica = ImageToByte(secondaryImg);
+            byte [] tablica = ImageToByte(secondaryImg);
             
-
-
-
-            
-
-            if (tablica.Length > primaryImg.Size.Height * primaryImg.Size.Width)
+            if (tablica.Length > primaryImg.Size.Height * primaryImg.Size.Width/2)
                 return null;
 
             int counter = 0;
@@ -41,16 +36,23 @@ namespace Img_Steganography.Functionality
                     {
                         break;                       
                     }
+
+                    var bits = new BitArray(new byte[] { tablica[counter] });
+
                     var pixel = imageToReturn.GetPixel(i, j);
                     var pixel1 = imageToReturn.GetPixel(i, j + 1);
-                    var pixelR = ByteArrayExtension.Set2LastBits(pixel.R, ByteArrayExtension.GetBit(tablica[counter], 7), ByteArrayExtension.GetBit(tablica[counter], 6));
-                    var pixelG = ByteArrayExtension.SetLastBit(pixel.G, ByteArrayExtension.GetBit(tablica[counter], 5));
-                    var pixelB = ByteArrayExtension.SetLastBit(pixel.B, ByteArrayExtension.GetBit(tablica[counter], 4));
-                    var pixelR1 = ByteArrayExtension.Set2LastBits(pixel.R, ByteArrayExtension.GetBit(tablica[counter], 3), ByteArrayExtension.GetBit(tablica[counter], 2));
-                    var pixelG1 = ByteArrayExtension.SetLastBit(pixel.G, ByteArrayExtension.GetBit(tablica[counter], 1));
-                    var pixelB1 = ByteArrayExtension.SetLastBit(pixel.B, ByteArrayExtension.GetBit(tablica[counter], 0));
+
+                    var pixelR = ByteArrayExtension.Set2LastBits(pixel.R, bits[7], bits[6]);
+                    var pixelG = ByteArrayExtension.SetLastBit(pixel.G, bits[5]);
+                    var pixelB = ByteArrayExtension.SetLastBit(pixel.B, bits[4]);
+
+                    var pixelR1 = ByteArrayExtension.Set2LastBits(pixel.R, bits[3], bits[2]);
+                    var pixelG1 = ByteArrayExtension.SetLastBit(pixel.G, bits[1]);
+                    var pixelB1 = ByteArrayExtension.SetLastBit(pixel.B, bits[0]);
+
                     Color color = Color.FromArgb(pixel.A, pixelR, pixelG, pixelB);
                     Color color1 = Color.FromArgb(pixel1.A, pixelR1, pixelG1, pixelB1);
+
                     imageToReturn.SetPixel(i, j, color);
                     imageToReturn.SetPixel(i, j + 1, color1);
                     counter++;
@@ -66,6 +68,10 @@ namespace Img_Steganography.Functionality
             return imageToReturn;
 
         }
+
+        
+
+
 
 
         //public static Bitmap ReadImage2LSB(Bitmap image)
