@@ -1,43 +1,49 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace Img_Steganography.Functionality
 {
-    public class Encryption2LSB : IEncryptor
+    class Encryption2LSB : IEncryptor
     {
         public Bitmap WriteImage(Bitmap primaryImg, Bitmap secondaryImg)
         {
             Bitmap imageToReturn = new Bitmap(primaryImg);
             //Bitmap EightbppImage;      
             //EightbppImage = ImageTo8bpp(secondaryImg);
-            byte [] tablica = EncryptionHelper.ImageToByte(secondaryImg);
-            
-            if (tablica.Length > primaryImg.Size.Height * primaryImg.Size.Width/2)
+            byte[] tablica = EncryptionHelper.ImageToByte(secondaryImg);
+           
+
+            if (tablica.Length + 27> primaryImg.Size.Height * primaryImg.Size.Width / 2)
                 return null;
 
-            int counter = 0;
-          
+
+            byte[] endWord = Encoding.UTF8.GetBytes("STOP_DECRYPTING_THE_PICTURE");
+
+            int counter = 0, k = 0;
+            BitArray bits = new BitArray(8);
 
             for (int i = 0; i < imageToReturn.Width; i++)
             {
-                for (int j = 0; j < imageToReturn.Height; j+=2)
+                for (int j = 0; j < imageToReturn.Height; j += 2)
                 {
-                    if (counter >= tablica.Length)
+                    if (counter >= tablica.Length && k <= 26)
                     {
-                        break;                       
+                        bits = new BitArray(new byte[] { endWord[k] });
+                        k++;
                     }
-                    var bits = new BitArray(new byte[] { tablica[counter] });
+                    else if (k == 27)
+                        break;
 
+                    else if(counter < tablica.Length)
+                        bits = new BitArray(new byte[] { tablica[counter] });
+
+                    
                     var pixel = imageToReturn.GetPixel(i, j);
                     var pixel1 = imageToReturn.GetPixel(i, j + 1);
 
@@ -47,9 +53,9 @@ namespace Img_Steganography.Functionality
                     imageToReturn.SetPixel(i, j, color);
                     imageToReturn.SetPixel(i, j + 1, color1);
                     counter++;
-                    
+
                 }
-                if (counter >= tablica.Length)
+                if (k==27)
                     break;
             }
             return imageToReturn;
@@ -57,61 +63,18 @@ namespace Img_Steganography.Functionality
         }
 
 
-        //public static Bitmap ReadImage2LSB(Bitmap image)
-        //{
-        //    Bitmap hiddenImage = new Bitmap(280, 210, PixelFormat.Format32bppArgb);
-            
-        //    List<byte> hidden = new List<byte>();
-        //    byte[] byteArray;
-        //    byte bajt=0;
-
-        //    for (int i = 0; i < image.Width; i++)
-        //    {
-        //        for (int j = 0; j < image.Height; j++)
-        //        {
-        //            var pixel = image.GetPixel(i, j);
-        //            BitArray bits = new BitArray(
-        //                new bool[]
-        //                          {
-        //                              ByteArrayExtension.GetBit(pixel.A, 1),
-        //                              ByteArrayExtension.GetBit(pixel.A, 0),
-        //                              ByteArrayExtension.GetBit(pixel.R, 1),
-        //                              ByteArrayExtension.GetBit(pixel.R, 0),
-        //                              ByteArrayExtension.GetBit(pixel.G, 1),
-        //                              ByteArrayExtension.GetBit(pixel.G, 0),
-        //                              ByteArrayExtension.GetBit(pixel.B, 1),
-        //                              ByteArrayExtension.GetBit(pixel.B, 0)
-        //                });
-
-        //            bajt = ConvertToByte(bits);                   
-        //            hidden.Add(bajt);
-                   
-                    
-        //        }
-                
-
-        //    }
-
-        //    byteArray = hidden.ToArray();
-
-        //    Bitmap bitmap = new Bitmap(736, 736, PixelFormat.Format32bppArgb);
-        //    var bitmapData = bitmap.LockBits(new Rectangle(System.Drawing.Point.Empty, bitmap.Size), ImageLockMode.ReadWrite, bitmap.PixelFormat);
-        //    Marshal.Copy(byteArray, 0, bitmapData.Scan0, byteArray.Length);
-        //    bitmap.UnlockBits(bitmapData);
-        //    bitmap.Save(@"C:\Users\micha\Pictures\Saved Pictures\test15.bmp", ImageFormat.Bmp);
-
-        //    return bitmap;
-
-        //}
+      
         public Bitmap ReadImage(Bitmap image)
         {
             List<byte> hidden = new List<byte>();
             byte[] byteArray;
             byte bajt = 0;
+            byte[] end_word = Encoding.UTF8.GetBytes("STOP_DECRYPTING_THE_PICTURE");
+            int k = 0;
 
             for (int i = 0; i < image.Width; i++)
             {
-                for (int j = 0; j < image.Height; j+=2)
+                for (int j = 0; j < image.Height; j += 2)
                 {
                     var pixel = image.GetPixel(i, j);
                     var pixel1 = image.GetPixel(i, j + 1);
@@ -130,9 +93,23 @@ namespace Img_Steganography.Functionality
                         });
 
                     bajt = EncryptionHelper.ConvertToByte(bits);
+                    if (bajt == end_word[k])
+                        k++;
+                    else
+                        k = 0;
+
                     hidden.Add(bajt);
+
+
+                    if (k == 27)
+                        break;
                 }
+                if (k == 27)
+                    break;
+                
             }
+
+            hidden.RemoveRange(hidden.Count - 27, 27);
 
             byteArray = hidden.ToArray();
 
@@ -143,7 +120,5 @@ namespace Img_Steganography.Functionality
             }
 
         }
-
-        
     }
 }

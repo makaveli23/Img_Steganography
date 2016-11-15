@@ -60,9 +60,9 @@
     </ApplicationDefinition>
     <Compile Include="Commands\RelayCommand.cs" />
     <Compile Include="Functionality\ByteArrayExtension.cs" />
+    <Compile Include="Functionality\Encryption2LSB.cs" />
     <Compile Include="Functionality\EncryptionHelper.cs" />
     <Compile Include="Functionality\IEncryptor.cs" />
-    <Compile Include="Functionality\Encryption2LSB.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

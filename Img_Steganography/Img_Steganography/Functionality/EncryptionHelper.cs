@@ -30,7 +30,7 @@ namespace Img_Steganography.Functionality
             var pixelG = ByteArrayExtension.SetLastBit(pixel.G, tab[2]);
             var pixelB = ByteArrayExtension.SetLastBit(pixel.B, tab[3]);
 
-            return Color.FromArgb(pixelR, pixelG, pixelB);
+            return Color.FromArgb(pixel.A, pixelR, pixelG, pixelB);
         }
 
         public static byte[] ImageToByte(Bitmap bmp)

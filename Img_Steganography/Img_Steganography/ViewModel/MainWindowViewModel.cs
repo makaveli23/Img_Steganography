@@ -63,8 +63,9 @@ namespace Img_Steganography.ViewModel
             if (op.ShowDialog() == true)
             {
                 PrimaryImgPath = op.FileName;
+                primaryImg = new Bitmap(PrimaryImgPath);
+
             }
-            primaryImg = new Bitmap(PrimaryImgPath);
         }
         private void openImg2(object obj = null)
         {
@@ -76,8 +77,9 @@ namespace Img_Steganography.ViewModel
             if (op.ShowDialog() == true)
             {
                 SecondaryImgPath = op.FileName;
+                secondaryImg = new Bitmap(SecondaryImgPath);
             }
-            secondaryImg = new Bitmap(SecondaryImgPath);
+           
         }
 
         private void saveImg(object obj)
@@ -89,6 +91,7 @@ namespace Img_Steganography.ViewModel
             using (var image = new Bitmap(resultImage))
             {
                 newImage = new Bitmap(image);
+                
             }
 
             if (dialog.ShowDialog() == true)
